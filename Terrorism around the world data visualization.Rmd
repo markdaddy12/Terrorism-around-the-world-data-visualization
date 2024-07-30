@@ -1,0 +1,70 @@
+---
+title: "Untitled"
+output:
+  pdf_document: default
+  html_document: default
+date: "2024-03-21"
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(vroom)
+library(lubridate)
+library(tidyverse)
+```
+
+```{r}
+
+
+gtd_data <- read.csv("globalterrorismdb_0718dist.csv", stringsAsFactors = FALSE)
+
+
+gtd_data$date <- as.Date("2024-03-17", format = "%Y-%m-%d")
+
+
+gtd_data$year <- lubridate::year(gtd_data$date)
+
+attacks_per_year <- gtd_data %>%
+  group_by(iyear) %>%
+  summarize(total_attacks = n())
+```
+
+```{r}
+ggplot(data = attacks_per_year, aes(x = iyear, y = total_attacks)) +
+  geom_line() +  
+  geom_point() + 
+  labs(title = "Terrorist Attacks Frequency Over Years",
+       x = "Year",
+       y = "Total Attacks")
+
+```
+
+```{r}
+gtd_data$region <- as.factor(gtd_data$region)
+num_regions <- length(levels(gtd_data$region))
+
+summary(gtd_data$longitude)
+summary(gtd_data$latitude)
+gtd_data <- gtd_data[!is.na(gtd_data$longitude) & !is.na(gtd_data$latitude),]
+```
+
+
+```{r}
+region_colors <- rainbow(num_regions)
+
+ggplot(gtd_data, aes(x = longitude, y = latitude, color = region)) +
+  geom_point(alpha = 0.5) +
+  scale_color_manual(values = region_colors) +
+  labs(title = "Global Distribution of Terrorist Attacks",
+       x = "Longitude",
+       y = "Latitude",
+       color = "Region")
+
+
+
+
+
+```
+
